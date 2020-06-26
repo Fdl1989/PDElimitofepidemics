@@ -186,6 +186,7 @@ class fast_Gillespie():
 if __name__=="__main__":
     N=100000
     k=8
+    from matplotlib import pyplot as plt
     #A = nx.erdos_renyi_graph(int(N),k/float(N-1.0),seed = 100)
  
     SI_threads=np.zeros(N+1) 
@@ -194,8 +195,8 @@ if __name__=="__main__":
     #model = fast_Gillespie(A, tau =1, gamma =5, i0 =10)
     #model.run_sim()
 
-
-
+    '''
+    #This generates the data to fit the C,a,p curves
     ERgamma = [5, 4.5, 7]
     ERtau =[1, 1, 4]
     ERk = [8.0,10.0,7.0]
@@ -232,6 +233,55 @@ if __name__=="__main__":
                 plt.plot(model.time_grid,model.I)
             plt.title("k=%d"%k)
             plt.show()
+    '''
+    
+    
+    #This bit is to produce a single realisation of the Gillespie algo used 
+    #for maximum likelihood and inference.
+    import numpy as np
+    np.random.seed(114286)
+    tau = 1
+    k = 10
+    gamma = 4.5
+    T=4
+    N=1000
+    networkchoice='E-R'   
+    seed = 2012    
+    A =  nx.fast_gnp_random_graph(N,k/float(N-1.0))
+    model = fast_Gillespie(A, tau =tau, gamma =gamma, i0 =5)
+    model.run_sim() # Run the simulation.
+    
+    fig= plt.figure(figsize=(3,2.6))
+    plt.subplots_adjust(left=0.2, bottom=0.2, right=0.94, top=0.95, wspace=0, hspace=0)
+    ax0 = fig.add_subplot(111)
+    ax0.step(model.time_grid,model.I/N, label=r"BD process")
+    ax0.set_xlim(0, T)
+    ax0.set_xlabel(r"Time", size=9)
+    ax0.set_ylim(0, 0.6)
+    ax0.set_xticklabels([r"$0$",r"$1$",r"$2$",r"$3$",r"$4$",r"$5$"], size=7)
+    
+    ax0.set_yticklabels([r"$0.0$",r"$0.1$",r"$0.2$",r"$0.3$",r"$0.4$",r"$0.5$",r"$0.6$"], size=7)
+    sample_size = 30
+    
+    sample_every = int(len(model.I)/sample_size)
+    
+    data = model.I[::sample_every]
+    data = data[:30]
+    time = model.time_grid[::sample_every]
+    time=time[:30]
+    ax0.set_ylabel(r"Infected", size=9)
+    ax0.scatter(time,data/N, color="red", label=r'Data')
+    ax0.legend(loc="best")
+    Data = np.zeros((2,sample_size))
+    
+    Data[0] = time
+    Data[1] = data
+    Data[1][0] = 5
+    Data = Data.T
+    plt.savefig("Data_ER.png",format='png', dpi=400)
+    np.savetxt("Dataset_ER.out", Data)
+
+    
     '''    
     for i in range(10):
         model = fast_Gillespie(A, tau =1, gamma =5, i0 =10)

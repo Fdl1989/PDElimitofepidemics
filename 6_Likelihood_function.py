@@ -49,7 +49,7 @@ if __name__ =='__main__':
 
         u = np.loadtxt("E-R_tau=1.000_gamma=4.500_k=10_cap.txt", unpack=True)
         u[0] = u[0]*(N**(2*u[2]))
-        data = np.loadtxt("Dataset.out")
+        data = np.loadtxt("Dataset_ER.out")
         data[:,1] /= N
         #t_grid = np.linspace(0,5,100)
         x_grid = np.linspace(0,1,100)
@@ -71,7 +71,7 @@ if __name__ =='__main__':
             logevaluations.append(loglikelihood(u_C,data[:,0],data[:,1], epsilon, gamma =gamma, N=N))
         '''
         from scipy.optimize import minimize
-        x0 = np.array([8.2, 0.1, 1])
+        x0 = np.array([8.5, 0.1, 1])
         bounds = [(1, 20),(0,0.5),(0.5,1.5)]
         
         np.random.seed(541994)
@@ -103,7 +103,7 @@ if __name__ =='__main__':
         ax0.plot(x_grid, CAPmodel(x_grid,x0, N), label='Initial guess')        
         ax0.legend(loc="best")
 
-        #plt.savefig("Inference.png",format='png', dpi=400)
+        plt.savefig("Inference_ER.png",format='png', dpi=400)
 
         '''
         resvec = FVM3(x_grid,t_grid,difflux,driftflux,xi)        
